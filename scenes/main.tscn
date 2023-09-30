@@ -1,17 +1,23 @@
-[gd_scene load_steps=11 format=3 uid="uid://c7hlor1u46rej"]
+[gd_scene load_steps=14 format=3 uid="uid://c7hlor1u46rej"]
 
 [ext_resource type="Script" path="res://scripts/stars.gd" id="1_06kfn"]
 [ext_resource type="Texture2D" uid="uid://ciwjxju8uek1r" path="res://assets/Earth.png" id="2_00tmi"]
+[ext_resource type="Script" path="res://scripts/timer.gd" id="2_5db6h"]
 [ext_resource type="PackedScene" uid="uid://baxq1ulivpmbv" path="res://scenes/map.tscn" id="3_fu177"]
 [ext_resource type="Script" path="res://scripts/camera.gd" id="4_54lj1"]
 [ext_resource type="Texture2D" uid="uid://co68rw8omstbl" path="res://assets/water.png" id="5_dpe1y"]
 [ext_resource type="Texture2D" uid="uid://csuk6boeb5cce" path="res://assets/food.png" id="6_6yt24"]
+[ext_resource type="Script" path="res://scripts/resources_ui_update.gd" id="7_33co4"]
 [ext_resource type="Texture2D" uid="uid://rpyg2w1uxgr6" path="res://assets/energy.png" id="7_e4dk5"]
 [ext_resource type="Texture2D" uid="uid://t6saj13kykk3" path="res://assets/people.png" id="8_resdf"]
 [ext_resource type="Texture2D" uid="uid://mcuy7p8vflji" path="res://assets/happiness.png" id="9_7kc7o"]
 [ext_resource type="Texture2D" uid="uid://0l4rm0jldk47" path="res://assets/timer.png" id="10_d7f8n"]
+[ext_resource type="Texture2D" uid="uid://2vee0gg7y57u" path="res://assets/home.png" id="11_few0h"]
 
 [node name="Main" type="Node2D"]
+
+[node name="Timer" type="Timer" parent="."]
+script = ExtResource("2_5db6h")
 
 [node name="Stars" type="Node2D" parent="."]
 script = ExtResource("1_06kfn")
@@ -48,89 +54,118 @@ anchor_right = 1.0
 offset_bottom = 26.0
 grow_horizontal = 2
 
-[node name="HBoxContainer7" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer"]
+[node name="Resources" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer" node_paths=PackedStringArray("life_support_icon", "life_support_label", "food_icon", "food_label", "energy_icon", "energy_label", "population_icon", "population_label", "shelter_icon", "shelter_label", "happiness_icon", "happiness_label", "timer_icon", "timer_label")]
 layout_mode = 2
+script = ExtResource("7_33co4")
+life_support_icon = NodePath("LifeSupportResource/LifeSupportIcon")
+life_support_label = NodePath("LifeSupportResource/LifeSupportValue")
+food_icon = NodePath("FoodResource/FoodIcon")
+food_label = NodePath("FoodResource/FoodValue")
+energy_icon = NodePath("EnergyResource/EnergyIcon")
+energy_label = NodePath("EnergyResource/EnergyValue")
+population_icon = NodePath("PopulationResource/PopulationIcon")
+population_label = NodePath("PopulationResource/PopulationValue")
+shelter_icon = NodePath("ShelterResouce/ShelterIcon")
+shelter_label = NodePath("ShelterResouce/ShelterValue")
+happiness_icon = NodePath("HappinessResource/HappinessIcon")
+happiness_label = NodePath("HappinessResource/HappinessValue")
+timer_icon = NodePath("TimerResource/TimerIcon")
+timer_label = NodePath("TimerResource/TimerValue")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="LifeSupportResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer"]
+[node name="LifeSupportIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/LifeSupportResource"]
 layout_mode = 2
 texture = ExtResource("5_dpe1y")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer"]
+[node name="LifeSupportValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/LifeSupportResource"]
 layout_mode = 2
 text = "36"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="FoodResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer2"]
+[node name="FoodIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/FoodResource"]
 layout_mode = 2
 texture = ExtResource("6_6yt24")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer2"]
+[node name="FoodValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/FoodResource"]
 layout_mode = 2
 text = "36"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="EnergyResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer3"]
+[node name="EnergyIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/EnergyResource"]
 layout_mode = 2
 texture = ExtResource("7_e4dk5")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer3"]
+[node name="EnergyValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/EnergyResource"]
 layout_mode = 2
 text = "36"
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="PopulationResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer4"]
+[node name="PopulationIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/PopulationResource"]
 layout_mode = 2
 texture = ExtResource("8_resdf")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer4"]
+[node name="PopulationValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/PopulationResource"]
 layout_mode = 2
 text = "36"
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="ShelterResouce" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer5"]
+[node name="ShelterIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/ShelterResouce"]
+layout_mode = 2
+texture = ExtResource("11_few0h")
+expand_mode = 3
+
+[node name="ShelterValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/ShelterResouce"]
+layout_mode = 2
+text = "36"
+
+[node name="HappinessResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+
+[node name="HappinessIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/HappinessResource"]
 layout_mode = 2
 texture = ExtResource("9_7kc7o")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer5"]
+[node name="HappinessValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/HappinessResource"]
 layout_mode = 2
 text = "36"
 
-[node name="HBoxContainer6" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7"]
+[node name="TimerResource" type="HBoxContainer" parent="CanvasLayer/Control/PanelContainer/Resources"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer6"]
+[node name="TimerIcon" type="TextureRect" parent="CanvasLayer/Control/PanelContainer/Resources/TimerResource"]
 layout_mode = 2
 texture = ExtResource("10_d7f8n")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="CanvasLayer/Control/PanelContainer/HBoxContainer7/HBoxContainer6"]
+[node name="TimerValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/TimerResource"]
 layout_mode = 2
 text = "36"
