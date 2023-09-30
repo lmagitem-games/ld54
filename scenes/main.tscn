@@ -1,6 +1,7 @@
-[gd_scene load_steps=14 format=3 uid="uid://c7hlor1u46rej"]
+[gd_scene load_steps=15 format=3 uid="uid://c7hlor1u46rej"]
 
 [ext_resource type="Script" path="res://scripts/stars.gd" id="1_06kfn"]
+[ext_resource type="Script" path="res://scenes/hovering.gd" id="2_0n7d8"]
 [ext_resource type="Texture2D" uid="uid://ciwjxju8uek1r" path="res://assets/Earth.png" id="2_00tmi"]
 [ext_resource type="Script" path="res://scripts/timer.gd" id="2_5db6h"]
 [ext_resource type="PackedScene" uid="uid://baxq1ulivpmbv" path="res://scenes/map.tscn" id="3_fu177"]
@@ -19,23 +20,20 @@
 [node name="Timer" type="Timer" parent="."]
 script = ExtResource("2_5db6h")
 
-[node name="Stars" type="Node2D" parent="."]
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("2_0n7d8")
+float_speed = 0.05
+
+[node name="Stars" type="Node2D" parent="Background"]
 script = ExtResource("1_06kfn")
 star_count = 1000
 
-[node name="Earth" type="Sprite2D" parent="."]
-position = Vector2(673, 739)
+[node name="Earth" type="Sprite2D" parent="Background"]
+position = Vector2(833, 1000)
 scale = Vector2(2.06096, 2.06096)
 texture = ExtResource("2_00tmi")
 
 [node name="Map" parent="." instance=ExtResource("3_fu177")]
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(564, 333)
-zoom = Vector2(1.5, 1.5)
-script = ExtResource("4_54lj1")
-speed = 1000.0
-smooth_factor = 0.15
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -169,3 +167,10 @@ expand_mode = 3
 [node name="TimerValue" type="Label" parent="CanvasLayer/Control/PanelContainer/Resources/TimerResource"]
 layout_mode = 2
 text = "36"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(564, 333)
+zoom = Vector2(1.5, 1.5)
+script = ExtResource("4_54lj1")
+speed = 1000.0
+smooth_factor = 0.15
