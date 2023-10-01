@@ -8,6 +8,7 @@ const RoomEnums = preload("res://scripts/room-enums.gd")
 @export var rotation_cooldown: int = 10
 var current_tilemap: TileMap = null
 var is_placing := false
+var is_removing := false
 var last_rotation_time: int = 0
 var room_tiles = []
 
@@ -26,8 +27,13 @@ func set_room_rotation(value):
 func start_placing():
 	is_placing = true
 	set_process(true)
+	
+func listen_to_remove():
+	if !is_placing:
+		is_removing = true
 
 func _ready():
+	$/root/Main/CanvasLayer/UI/BottomMenu/HBoxContainer/RemoveButton.connect("button_up", listen_to_remove)
 	_update_tilemap()
 
 func _process(delta):
@@ -88,11 +94,31 @@ func _input(event):
 				if event.button_index == MOUSE_BUTTON_RIGHT:
 					cancel_placement()
 				elif is_placement_valid():
-					FXPlayer.start_playing()
+					FXPlayer.start_building()
 					GameManager.register_room(self)
 					is_placing = false
 					set_process(false)
-
+	elif is_removing and room_type != RoomEnums.RoomType.POPULATION:
+		var is_mouse_over_tile = false
+		if event.position:
+			var mouse_tile_pos = event.position / GameManager.tile_size
+			for room_tile in room_tiles:
+				var tile_end = room_tile + Vector2(GameManager.block_size, GameManager.block_size) 
+				if mouse_tile_pos.x > room_tile.x and mouse_tile_pos.x < tile_end.x and mouse_tile_pos.y > room_tile.y and mouse_tile_pos.y < tile_end.y:
+					is_mouse_over_tile = true
+					break
+		if event is InputEventMouseMotion:
+			if is_mouse_over_tile:
+				modulate = Color(1, 0.2, 0, 0.7)
+			else:
+				modulate = Color(1, 1, 1, 1)
+		elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+			is_removing = false
+			modulate = Color(1, 1, 1, 1)
+		elif event is InputEventMouseButton and event.pressed:
+			if is_mouse_over_tile:
+				self.queue_free()
+				GameManager.unregister_room(self)
 
 func _exit_tree():
 	GameManager.unregister_room(self)

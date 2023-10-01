@@ -20,12 +20,14 @@ func _process(delta):
 
 func start_building():
 	stream = load("res://assets/CONSTRUCTION_Digger_Digging_01_loop_stereo.wav")
+	seek(randf() * 2) 
 	volume_db = -80
 	opening = true
 	play()
 
 func start_destroying():
 	stream = load("res://assets/DEMOLISH_Wood_Metal_stereo.wav")
+	seek(randf()) 
 	volume_db = -80
 	opening = true
 	play()

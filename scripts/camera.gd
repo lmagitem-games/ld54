@@ -1,11 +1,13 @@
 extends Camera2D
 
-# Speed of the camera movement in pixels per second.
-@export var speed: float = 400.0
-@export var smooth_factor: float = 0.1
+@export var speed: float = 2000.0
+@export var smooth_factor: float = 0.2
 
 @export var top_left_border: Vector2 = Vector2(0, 0)
-@export var bottom_right_border: Vector2 = Vector2(1000, 1000)
+@export var bottom_right_border: Vector2 = Vector2(3000, 2000)
+
+var dragging = false
+var drag_start_pos = Vector2()
 
 func _process(delta: float) -> void:
 	var velocity = Vector2()
@@ -25,3 +27,22 @@ func _process(delta: float) -> void:
 		target_position.x = clamp(target_position.x, top_left_border.x, bottom_right_border.x)
 		target_position.y = clamp(target_position.y, top_left_border.y, bottom_right_border.y)
 		position = position.lerp(target_position, smooth_factor)
+
+	if dragging:
+		var mouse_motion = drag_start_pos - get_global_mouse_position()
+		var target_position = position + mouse_motion
+		target_position.x = clamp(target_position.x, top_left_border.x, bottom_right_border.x)
+		target_position.y = clamp(target_position.y, top_left_border.y, bottom_right_border.y)
+		position = target_position
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_MIDDLE:
+			if event.pressed:
+				dragging = true
+				drag_start_pos = get_global_mouse_position()
+			else:
+				dragging = false
+
+	if event is InputEventMouseMotion and dragging:
+		drag_start_pos = get_global_mouse_position()
