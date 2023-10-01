@@ -3,6 +3,7 @@ extends Node
 const RoomEnums = preload("res://scripts/room-enums.gd")
 
 # Define signals
+signal game_started
 signal life_support_changed
 signal food_changed
 signal energy_changed
@@ -10,6 +11,7 @@ signal population_changed
 signal shelter_changed
 signal happiness_changed
 signal timer_changed
+signal game_over
 
 var tile_size := Vector2(16, 16)
 var block_size := 3
@@ -45,15 +47,43 @@ var ideal_population:= 0
 var shelter:= 0
 var happiness:= 100
 var ideal_happiness:= 100
-var deaths := 0
+var wave := 0
 var timer:= 30.0
-var timer_interval:= 30.0
+var timer_interval:= 10.0
 
+var timer_node: Timer
+var can_zoom = true
 var map_tiles = []
 var rooms = []
 
+func restart():
+	timer_node.stop()
+	life_support= 0
+	ideal_life_support= 100
+	food= 0
+	ideal_food= 100
+	energy= 0
+	ideal_energy= 100
+	population= 20
+	ideal_population= 0
+	shelter= 0
+	happiness= 100
+	ideal_happiness= 100
+	wave = 0
+	timer= 30.0
+	timer_interval= 10.0
+	timer_node = null
+	can_zoom = true
+	map_tiles = []
+	rooms = []
+	update_room_effects()
+
 func _ready():
 	update_room_effects()
+	
+func start_game():
+	game_started.emit()
+	timer_node.start()
 	
 func update_room_effects():
 	var life_support = 0
@@ -109,10 +139,10 @@ func unregister_room(room):
 	rooms.erase(room)
 	update_room_effects()
 	
-func setup_timer(timer_node: Timer):
+func setup_timer(received_timer_node: Timer):
+	timer_node = received_timer_node
 	timer_node.wait_time = 1
 	timer_node.one_shot = false
-	timer_node.start()
 	timer_node.connect("timeout", self._on_timer_timeout)
 
 func _on_timer_timeout():
@@ -121,6 +151,7 @@ func _on_timer_timeout():
 	elif timer == 0:
 		set_timer(timer_interval)
 		set_population(population + 10 + floor(population / 10))
+		wave += 1
 
 func set_life_support(value):
 	if life_support != value:

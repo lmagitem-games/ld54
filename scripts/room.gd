@@ -26,6 +26,7 @@ func set_room_rotation(value):
 
 func start_placing():
 	is_placing = true
+	GameManager.can_zoom = false
 	set_process(true)
 	
 func listen_to_remove():
@@ -97,16 +98,16 @@ func _input(event):
 					FXPlayer.start_building()
 					GameManager.register_room(self)
 					is_placing = false
+					GameManager.can_zoom = true
 					set_process(false)
 	elif is_removing and room_type != RoomEnums.RoomType.POPULATION:
 		var is_mouse_over_tile = false
-		if event.position:
-			var mouse_tile_pos = event.position / GameManager.tile_size
-			for room_tile in room_tiles:
-				var tile_end = room_tile + Vector2(GameManager.block_size, GameManager.block_size) 
-				if mouse_tile_pos.x > room_tile.x and mouse_tile_pos.x < tile_end.x and mouse_tile_pos.y > room_tile.y and mouse_tile_pos.y < tile_end.y:
-					is_mouse_over_tile = true
-					break
+		var mouse_tile_pos = get_global_mouse_position() / GameManager.tile_size  # Updated line
+		for room_tile in room_tiles:
+			var tile_end = room_tile + Vector2(GameManager.block_size, GameManager.block_size) 
+			if mouse_tile_pos.x > room_tile.x and mouse_tile_pos.x < tile_end.x and mouse_tile_pos.y > room_tile.y and mouse_tile_pos.y < tile_end.y:
+				is_mouse_over_tile = true
+				break
 		if event is InputEventMouseMotion:
 			if is_mouse_over_tile:
 				modulate = Color(1, 0.2, 0, 0.7)
@@ -119,11 +120,13 @@ func _input(event):
 			if is_mouse_over_tile:
 				self.queue_free()
 				GameManager.unregister_room(self)
+			is_removing = false
 
 func _exit_tree():
 	GameManager.unregister_room(self)
 
 func cancel_placement():
+	GameManager.can_zoom = true
 	if is_placing:
 		queue_free()
 

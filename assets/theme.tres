@@ -9,4 +9,8 @@ bg_color = Color(0, 0, 0, 0.717647)
 border_color = Color(0, 0, 0, 1)
 
 [resource]
+Button/colors/font_focus_color = Color(0.94902, 0.94902, 0.94902, 0)
+Button/colors/font_outline_color = Color(1, 1, 1, 0)
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_m2y57")
+RichTextLabel/font_sizes/bold_font_size = 12
+RichTextLabel/font_sizes/normal_font_size = 12

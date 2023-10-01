@@ -10,7 +10,7 @@ func _ready():
 func _process(delta):
 	if opening:
 		volume_db += 300 * delta
-		if volume_db > -10:
+		if volume_db > -20:
 			opening = false
 			fading = true
 	if fading:
