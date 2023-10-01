@@ -45,7 +45,7 @@ func _on_energy_changed():
 
 func _on_population_changed():
 	population_label.text = str(GameManager.population)
-	_update_icon_color(population_icon, GameManager.population, 1)
+	_update_icon_color(population_icon, GameManager.population, GameManager.ideal_population)
 
 func _on_shelter_changed():
 	shelter_label.text = str(GameManager.shelter)

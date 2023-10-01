@@ -4,7 +4,8 @@ enum RoomType {
 	SHELTER,
 	ENERGY,
 	FOOD,
-	LIFE_SUPPORT
+	LIFE_SUPPORT,
+	HAPPINESS
 }
 
 enum RoomPlan {

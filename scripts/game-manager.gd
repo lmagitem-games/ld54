@@ -1,5 +1,7 @@
 extends Node
 
+const RoomEnums = preload("res://scripts/room-enums.gd")
+
 # Define signals
 signal life_support_changed
 signal food_changed
@@ -11,29 +13,96 @@ signal timer_changed
 
 var tile_size := Vector2(16, 16)
 var block_size := 3
-var life_support:= 36
+
+var life_support_gen_per_life_support_tile := 5
+var life_support_gen_per_food_tile := 1
+var food_gen_per_tile := 5
+var energy_gen_per_tile := 5
+var shelter_gen_per_tile := 5
+var happiness_gen_per_tile := 5
+
+var life_support_cost_per_pop := 1
+var food_cost_per_pop := 2
+var shelter_cost_per_pop := 1
+
+var life_support_cost_per_food_room := 5
+var energy_cost_per_life_support_room := 15
+var energy_cost_per_food_room := 5
+var energy_cost_per_shelter_room := 3
+var energy_cost_per_happiness_room := 3
+
+var happiness_cost_per_homeless := 1
+var happiness_cost_per_dead := 3
+
+var life_support:= 0
 var ideal_life_support:= 100
-var food:= 36
+var food:= 0
 var ideal_food:= 100
-var energy:= 36
+var energy:= 0
 var ideal_energy:= 100
-var population:= 36
-var shelter:= 36
-var happiness:= 36
+var population:= 20
+var ideal_population:= 0
+var shelter:= 0
+var happiness:= 100
 var ideal_happiness:= 100
+var deaths := 0
 var timer:= 60.0
 var timer_interval:= 60.0
+
 var map_tiles = []
 var rooms = []
 
+func _ready():
+	update_room_effects()
+	
+func update_room_effects():
+	var life_support = 0
+	var food = 0
+	var energy = 0
+	var shelter = 0
+	var happiness = 0
+	ideal_population = rooms.size()
+	for room in rooms:
+		match room.room_type:
+			RoomEnums.RoomType.SHELTER: 
+				shelter += room.room_tiles.size() * shelter_gen_per_tile
+				energy -= energy_cost_per_shelter_room
+			RoomEnums.RoomType.ENERGY:
+				energy += room.room_tiles.size() * energy_gen_per_tile
+			RoomEnums.RoomType.FOOD:
+				food += room.room_tiles.size() * food_gen_per_tile
+				life_support += room.room_tiles.size() * life_support_gen_per_food_tile
+				life_support -= life_support_cost_per_food_room
+				energy -= energy_cost_per_food_room
+			RoomEnums.RoomType.LIFE_SUPPORT:
+				life_support += room.room_tiles.size() * life_support_gen_per_life_support_tile
+				energy -= energy_cost_per_life_support_room
+			RoomEnums.RoomType.HAPPINESS:
+				happiness += room.room_tiles.size() * happiness_gen_per_tile
+				energy -= energy_cost_per_happiness_room
+	life_support -= population * life_support_cost_per_pop
+	food -= population * food_cost_per_pop
+	shelter -= population * shelter_cost_per_pop
+	if shelter < population:
+		happiness -= population - shelter
+	if food < 10:
+		happiness -= 10 - food
+	if life_support < 10:
+		happiness -= 10 - life_support
+	set_energy(energy)
+	set_food(food)
+	set_happiness(happiness)
+	set_life_support(life_support)
+	set_population(population)
+	set_shelter(shelter)
+
 func register_room(room):
 	rooms.append(room)
+	update_room_effects()
 	
 func unregister_room(room):
 	rooms.erase(room)
-
-func _ready():
-	print("GameManager is ready!")
+	update_room_effects()
 	
 func setup_timer(timer_node: Timer):
 	timer_node.wait_time = 1
@@ -46,6 +115,7 @@ func _on_timer_timeout():
 		set_timer(timer - 1)
 	elif timer == 0:
 		set_timer(timer_interval)
+		set_population(population + 10)
 
 func set_life_support(value):
 	if life_support != value:

@@ -34,18 +34,20 @@ func _process(delta):
 		var block_size_y = GameManager.tile_size.y * GameManager.block_size
 		var grid_x = int(mouse_position.x / block_size_x) * block_size_x
 		var grid_y = int(mouse_position.y / block_size_y) * block_size_y
+		
 		global_position = Vector2(grid_x, grid_y)
+		calculate_available_tiles()
 		
 		if is_placement_valid():
 			modulate = Color(1, 1, 1, 1)
 		else:
 			modulate = Color(1, 0, 0, 0.5)
-		
-		calculate_available_tiles()
 			
 func is_placement_valid() -> bool:
+	if room_tiles.size() == 0:
+		return false
 	for tile in room_tiles:
-		if !is_tile_in_spaceship(tile) or is_tile_occupied_by_room(tile):
+		if (is_spacebound_tile(tile) and is_tile_in_spaceship(tile)) or (!is_spacebound_tile(tile) and !is_tile_in_spaceship(tile)) or is_tile_occupied_by_room(tile):
 			return false
 	return true
 
@@ -54,9 +56,17 @@ func is_tile_in_spaceship(tile: Vector2) -> bool:
 		return true
 	return false
 
+func is_spacebound_tile(pos: Vector2) -> bool:
+	if room_type == RoomEnums.RoomType.ENERGY:
+		pos = pos - global_position / GameManager.tile_size
+		var atlas_coord = current_tilemap.get_cell_atlas_coords(0, pos)
+		print(pos, atlas_coord)
+		if atlas_coord == Vector2i(7, 7) or atlas_coord == Vector2i(8, 9) or atlas_coord == Vector2i(8, 17) or atlas_coord == Vector2i(7, 19) or atlas_coord == Vector2i(9, 19) or atlas_coord == Vector2i(12, 19):
+			return true
+	return false
+
 func is_tile_occupied_by_room(tile: Vector2) -> bool:
 	for room in GameManager.rooms:
-		# print(tile, room.room_tiles)
 		if tile in room.room_tiles:
 			return true
 	return false
@@ -75,7 +85,7 @@ func _input(event):
 			elif event.pressed:
 				if event.button_index == MOUSE_BUTTON_RIGHT:
 					cancel_placement()
-				else:
+				elif is_placement_valid():
 					GameManager.register_room(self)
 					is_placing = false
 					set_process(false)
@@ -107,6 +117,7 @@ func _build_tilemap_name() -> String:
 		RoomEnums.RoomType.ENERGY: type_string = "Energy"
 		RoomEnums.RoomType.FOOD: type_string = "Food"
 		RoomEnums.RoomType.LIFE_SUPPORT: type_string = "LifeSupport"
+		RoomEnums.RoomType.HAPPINESS: type_string = "Happiness"
 		
 	var plan_string
 	match room_plan:
@@ -146,12 +157,13 @@ func calculate_available_tiles():
 	for x in range(int(start.x), int(end.x), GameManager.block_size):
 		for y in range(int(start.y), int(end.y), GameManager.block_size):
 			var block_start_pos = Vector2(x, y)
-			room_tiles.append(block_start_pos)
-	print(GameManager.map_tiles)
-	print(room_tiles)
+			if is_tile_filled(block_start_pos):
+				room_tiles.append(block_start_pos)
 
-func is_tile_buildable(pos: Vector2) -> bool:
+func is_tile_filled(pos: Vector2) -> bool:
+	pos = pos - global_position / GameManager.tile_size
 	var tile_id = current_tilemap.get_cell_source_id(0, pos)
+	var atlas_coord = current_tilemap.get_cell_atlas_coords(0, pos)
 	if tile_id == -1:
 		return false  # Empty tile, not buildable.
 	return true
