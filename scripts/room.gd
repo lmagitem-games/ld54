@@ -5,7 +5,6 @@ const RoomEnums = preload("res://scripts/room-enums.gd")
 @export var room_type: RoomEnums.RoomType
 @export var room_plan: RoomEnums.RoomPlan
 @export var room_rotation: RoomEnums.RoomRotation
-@export var grid_size = Vector2(16, 16)
 @export var rotation_cooldown: int = 10
 var current_tilemap: TileMap = null
 var is_placing := false
@@ -31,18 +30,22 @@ func start_placing():
 func _process(delta):
 	if is_placing:
 		var mouse_position = get_global_mouse_position()
-		var grid_x = int(mouse_position.x / grid_size.x) * grid_size.x
-		var grid_y = int(mouse_position.y / grid_size.y) * grid_size.y
+		var block_size_x = GameManager.tile_size.x * GameManager.block_size
+		var block_size_y = GameManager.tile_size.y * GameManager.block_size
+		var grid_x = int(mouse_position.x / block_size_x) * block_size_x
+		var grid_y = int(mouse_position.y / block_size_y) * block_size_y
 		global_position = Vector2(grid_x, grid_y)
 		
 		if is_placement_valid():
 			modulate = Color(1, 1, 1, 1)
 		else:
 			modulate = Color(1, 0, 0, 0.5)
+		
+		calculate_available_tiles()
 			
 func is_placement_valid() -> bool:
 	for tile in room_tiles:
-		if !is_tile_in_spaceship(position / Vector2(16, 16) + tile) or is_tile_occupied_by_room(position + tile):
+		if !is_tile_in_spaceship(tile) or is_tile_occupied_by_room(tile):
 			return false
 	return true
 
@@ -52,6 +55,10 @@ func is_tile_in_spaceship(tile: Vector2) -> bool:
 	return false
 
 func is_tile_occupied_by_room(tile: Vector2) -> bool:
+	for room in GameManager.rooms:
+		# print(tile, room.room_tiles)
+		if tile in room.room_tiles:
+			return true
 	return false
 		
 func _input(event):
@@ -132,14 +139,16 @@ func calculate_available_tiles():
 	if !current_tilemap:
 		return
 	var used_rect = current_tilemap.get_used_rect()
-	var start = used_rect.position
-	var end = start + used_rect.size
+	var start = global_position / GameManager.tile_size + Vector2(used_rect.position)
+	var end = start + Vector2(used_rect.size)
 	
-	for x in range(int(start.x), int(end.x)):
-		for y in range(int(start.y), int(end.y)):
-			var cell_pos = Vector2(x, y)
-			if is_tile_buildable(cell_pos):
-				room_tiles.append(cell_pos)
+	room_tiles.clear()
+	for x in range(int(start.x), int(end.x), GameManager.block_size):
+		for y in range(int(start.y), int(end.y), GameManager.block_size):
+			var block_start_pos = Vector2(x, y)
+			room_tiles.append(block_start_pos)
+	print(GameManager.map_tiles)
+	print(room_tiles)
 
 func is_tile_buildable(pos: Vector2) -> bool:
 	var tile_id = current_tilemap.get_cell_source_id(0, pos)

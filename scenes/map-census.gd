@@ -7,11 +7,11 @@ func _ready():
 
 func calculate_available_tiles():
 	var used_rect = get_used_rect()
-	var start = used_rect.position
-	var end = start + used_rect.size
+	var start = global_position / GameManager.tile_size + Vector2(used_rect.position)
+	var end = start + Vector2(used_rect.size)
 	
-	for x in range(int(start.x), int(end.x)):
-		for y in range(int(start.y), int(end.y)):
+	for x in range(int(start.x), int(end.x), GameManager.block_size):
+		for y in range(int(start.y), int(end.y), GameManager.block_size):
 			var cell_pos = Vector2(x, y)
 			if is_tile_buildable(cell_pos):
 				available_tiles.append(cell_pos)

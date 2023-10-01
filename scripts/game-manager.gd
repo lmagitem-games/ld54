@@ -9,18 +9,20 @@ signal shelter_changed
 signal happiness_changed
 signal timer_changed
 
-@export var life_support:= 36
-@export var ideal_life_support:= 100
-@export var food:= 36
-@export var ideal_food:= 100
-@export var energy:= 36
-@export var ideal_energy:= 100
-@export var population:= 36
-@export var shelter:= 36
-@export var happiness:= 36
-@export var ideal_happiness:= 100
-@export var timer:= 60.0
-@export var timer_interval:= 60.0
+var tile_size := Vector2(16, 16)
+var block_size := 3
+var life_support:= 36
+var ideal_life_support:= 100
+var food:= 36
+var ideal_food:= 100
+var energy:= 36
+var ideal_energy:= 100
+var population:= 36
+var shelter:= 36
+var happiness:= 36
+var ideal_happiness:= 100
+var timer:= 60.0
+var timer_interval:= 60.0
 var map_tiles = []
 var rooms = []
 
