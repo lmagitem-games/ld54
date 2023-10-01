@@ -14,12 +14,12 @@ signal timer_changed
 var tile_size := Vector2(16, 16)
 var block_size := 3
 
-var life_support_gen_per_life_support_tile := 5
+var life_support_gen_per_life_support_tile := 7
 var life_support_gen_per_food_tile := 1
-var food_gen_per_tile := 5
+var food_gen_per_tile := 12
 var energy_gen_per_tile := 5
 var shelter_gen_per_tile := 5
-var happiness_gen_per_tile := 5
+var happiness_gen_per_tile := 1
 
 var life_support_cost_per_pop := 1
 var food_cost_per_pop := 2
@@ -46,8 +46,8 @@ var shelter:= 0
 var happiness:= 100
 var ideal_happiness:= 100
 var deaths := 0
-var timer:= 60.0
-var timer_interval:= 60.0
+var timer:= 30.0
+var timer_interval:= 30.0
 
 var map_tiles = []
 var rooms = []
@@ -60,8 +60,10 @@ func update_room_effects():
 	var food = 0
 	var energy = 0
 	var shelter = 0
-	var happiness = 0
+	var happiness = 20
 	ideal_population = rooms.size()
+	ideal_food = population
+	ideal_life_support = population
 	for room in rooms:
 		match room.room_type:
 			RoomEnums.RoomType.SHELTER: 
@@ -80,9 +82,12 @@ func update_room_effects():
 			RoomEnums.RoomType.HAPPINESS:
 				happiness += room.room_tiles.size() * happiness_gen_per_tile
 				energy -= energy_cost_per_happiness_room
+			RoomEnums.RoomType.POPULATION:
+				energy -= energy_cost_per_happiness_room
+			RoomEnums.RoomType.WORK:
+				energy -= energy_cost_per_happiness_room
 	life_support -= population * life_support_cost_per_pop
 	food -= population * food_cost_per_pop
-	shelter -= population * shelter_cost_per_pop
 	if shelter < population:
 		happiness -= population - shelter
 	if food < 10:
@@ -115,36 +120,53 @@ func _on_timer_timeout():
 		set_timer(timer - 1)
 	elif timer == 0:
 		set_timer(timer_interval)
-		set_population(population + 10)
+		set_population(population + 10 + floor(population / 10))
 
 func set_life_support(value):
 	if life_support != value:
 		life_support = value
+		update_room_effects()
+		emit_signal("energy_changed")
+		emit_signal("food_changed")
 		emit_signal("life_support_changed")
 
 func set_food(value):
 	if food != value:
 		food = value
+		update_room_effects()
+		emit_signal("life_support_changed")
+		emit_signal("energy_changed")
 		emit_signal("food_changed")
 
 func set_energy(value):
 	if energy != value:
 		energy = value
+		update_room_effects()
 		emit_signal("energy_changed")
 
 func set_population(value):
 	if population != value:
 		population = value
+		update_room_effects()
+		emit_signal("life_support_changed")
+		emit_signal("food_changed")
+		emit_signal("shelter_changed")
+		emit_signal("happiness_changed")
 		emit_signal("population_changed")
 
 func set_shelter(value):
 	if shelter != value:
 		shelter = value
+		update_room_effects()
+		emit_signal("energy_changed")
+		emit_signal("population_changed")
 		emit_signal("shelter_changed")
 
 func set_happiness(value):
 	if happiness != value:
 		happiness = value
+		update_room_effects()
+		emit_signal("energy_changed")
 		emit_signal("happiness_changed")
 
 func set_timer(value):

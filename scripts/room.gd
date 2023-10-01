@@ -27,6 +27,9 @@ func start_placing():
 	is_placing = true
 	set_process(true)
 
+func _ready():
+	_update_tilemap()
+
 func _process(delta):
 	if is_placing:
 		var mouse_position = get_global_mouse_position()
@@ -60,7 +63,6 @@ func is_spacebound_tile(pos: Vector2) -> bool:
 	if room_type == RoomEnums.RoomType.ENERGY:
 		pos = pos - global_position / GameManager.tile_size
 		var atlas_coord = current_tilemap.get_cell_atlas_coords(0, pos)
-		print(pos, atlas_coord)
 		if atlas_coord == Vector2i(7, 7) or atlas_coord == Vector2i(8, 9) or atlas_coord == Vector2i(8, 17) or atlas_coord == Vector2i(7, 19) or atlas_coord == Vector2i(9, 19) or atlas_coord == Vector2i(12, 19):
 			return true
 	return false
@@ -86,6 +88,7 @@ func _input(event):
 				if event.button_index == MOUSE_BUTTON_RIGHT:
 					cancel_placement()
 				elif is_placement_valid():
+					FXPlayer.start_playing()
 					GameManager.register_room(self)
 					is_placing = false
 					set_process(false)
@@ -118,6 +121,8 @@ func _build_tilemap_name() -> String:
 		RoomEnums.RoomType.FOOD: type_string = "Food"
 		RoomEnums.RoomType.LIFE_SUPPORT: type_string = "LifeSupport"
 		RoomEnums.RoomType.HAPPINESS: type_string = "Happiness"
+		RoomEnums.RoomType.POPULATION: type_string = "Population"
+		RoomEnums.RoomType.WORK: type_string = "Work"
 		
 	var plan_string
 	match room_plan:
