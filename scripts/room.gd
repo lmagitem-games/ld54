@@ -10,6 +10,7 @@ const RoomEnums = preload("res://scripts/room-enums.gd")
 var current_tilemap: TileMap = null
 var is_placing := false
 var last_rotation_time: int = 0
+var room_tiles = []
 
 func set_room_type(value):
 	room_type = value
@@ -34,8 +35,26 @@ func _process(delta):
 		var grid_y = int(mouse_position.y / grid_size.y) * grid_size.y
 		global_position = Vector2(grid_x, grid_y)
 		
+		if is_placement_valid():
+			modulate = Color(1, 1, 1, 1)
+		else:
+			modulate = Color(1, 0, 0, 0.5)
+			
+func is_placement_valid() -> bool:
+	for tile in room_tiles:
+		if !is_tile_in_spaceship(position / Vector2(16, 16) + tile) or is_tile_occupied_by_room(position + tile):
+			return false
+	return true
+
+func is_tile_in_spaceship(tile: Vector2) -> bool:
+	if tile in GameManager.map_tiles:
+		return true
+	return false
+
+func is_tile_occupied_by_room(tile: Vector2) -> bool:
+	return false
+		
 func _input(event):
-	print(self.name)
 	if is_placing:
 		if event is InputEventMouseButton:
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
@@ -50,8 +69,13 @@ func _input(event):
 				if event.button_index == MOUSE_BUTTON_RIGHT:
 					cancel_placement()
 				else:
+					GameManager.register_room(self)
 					is_placing = false
 					set_process(false)
+
+
+func _exit_tree():
+	GameManager.unregister_room(self)
 
 func cancel_placement():
 	if is_placing:
@@ -66,6 +90,8 @@ func _update_tilemap():
 	name = tilemap_name
 	if current_tilemap:
 		current_tilemap.visible = true
+		
+	calculate_available_tiles()
 
 func _build_tilemap_name() -> String:
 	var type_string
@@ -96,9 +122,27 @@ func _build_tilemap_name() -> String:
 
 func set_next_rotation():
 	var next_rotation = (room_rotation + 1) % RoomEnums.RoomRotation.size()
-	print(next_rotation)
 	set_room_rotation(next_rotation)
 
 func set_previous_rotation():
 	var previous_rotation = (room_rotation - 1 + RoomEnums.RoomRotation.size()) % RoomEnums.RoomRotation.size()
 	set_room_rotation(previous_rotation)
+	
+func calculate_available_tiles():
+	if !current_tilemap:
+		return
+	var used_rect = current_tilemap.get_used_rect()
+	var start = used_rect.position
+	var end = start + used_rect.size
+	
+	for x in range(int(start.x), int(end.x)):
+		for y in range(int(start.y), int(end.y)):
+			var cell_pos = Vector2(x, y)
+			if is_tile_buildable(cell_pos):
+				room_tiles.append(cell_pos)
+
+func is_tile_buildable(pos: Vector2) -> bool:
+	var tile_id = current_tilemap.get_cell_source_id(0, pos)
+	if tile_id == -1:
+		return false  # Empty tile, not buildable.
+	return true

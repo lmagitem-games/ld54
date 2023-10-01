@@ -19,8 +19,16 @@ signal timer_changed
 @export var shelter:= 36
 @export var happiness:= 36
 @export var ideal_happiness:= 100
-@export var timer:= 10.0
-@export var timer_interval:= 10.0
+@export var timer:= 60.0
+@export var timer_interval:= 60.0
+var map_tiles = []
+var rooms = []
+
+func register_room(room):
+	rooms.append(room)
+	
+func unregister_room(room):
+	rooms.erase(room)
 
 func _ready():
 	print("GameManager is ready!")
